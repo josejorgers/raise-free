@@ -31,12 +31,18 @@ describe("Fundraiser", function () {
       )
     })
     
-    it("Should revert fundraise liquidation", async function() {
+    it("Should emit FundraiseLiquidated event", async function() {
       const { otherAccount, contract } = await loadFixture(deployFundraiserFixture);
 
       expect(contract.liquidateFundraising(1)).to.emit(
         contract, "FundraiseLiquidated"
       ).withArgs(otherAccount.address)
+    })
+
+    it("Should revert because of already liquidated fundraise", async function() {
+      const { otherAccount, contract } = await loadFixture(deployFundraiserFixture);
+
+      expect(contract.liquidateFundraising(1)).to.be.revertedWith("Fundraise already liquidated")
     })
   });
 });
