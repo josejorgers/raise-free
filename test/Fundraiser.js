@@ -3,8 +3,9 @@ const {
   loadFixture,
 } = require("@nomicfoundation/hardhat-network-helpers");
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
+const { ethers } = require('hardhat');
 const { expect } = require("chai");
-const { deployFundraiserFixture } = require("./testUtils");
+const { deployFundraiserFixture, MAINNET_TOKENS } = require("./testUtils");
 
 describe("Fundraiser", function () {
   
@@ -21,6 +22,18 @@ describe("Fundraiser", function () {
 
       expect(contract.addFundraising(otherAccount.address)).to.emit(
         contract, "FundraiseCreated").withArgs(1);
+    })
+
+
+    it("Should fund the fundraise", async function() {
+      const { otherAccount, contract } = await loadFixture(deployFundraiserFixture);
+
+      const amount = ethers.utils.parseEther('1');
+      const assetAddress = MAINNET_TOKENS.ETH;
+
+      expect(contract.connect(otherAccount).fund(1, assetAddress, amount)).to.emit(
+        contract, 'FundraiseFunded'
+      ).withArgs(1, otherAccount.address, assetAddress, amount);
     })
 
     it("Should revert fundraise liquidation", async function() {
@@ -44,5 +57,6 @@ describe("Fundraiser", function () {
 
       expect(contract.liquidateFundraising(1)).to.be.revertedWith("Fundraise already liquidated")
     })
+
   });
 });

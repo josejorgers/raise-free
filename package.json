@@ -5,6 +5,9 @@
   "main": "index.js",
   "repository": "https://github.com/josejorgers/raise-free",
   "license": "MIT",
+  "scripts": {
+    "test": "npx hardhat test"
+  },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
     "@ethersproject/providers": "^5.4.7",

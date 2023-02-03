@@ -11,5 +11,6 @@ interface IFundraiser {
     function fund(uint48 _id, address _asset, uint amount) external;
     
     event FundraiseCreated(uint48);
-    event FundraiseLiquidated(address);
+    event FundraiseLiquidated(uint48, address);
+    event FundraiseFunded(uint48, address funder, address token, uint amount);
 }

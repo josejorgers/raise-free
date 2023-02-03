@@ -53,7 +53,7 @@ contract Fundraiser is IFundraiser{
     }
     
 
-    function addFundraising(address _beneficiary) external returns(uint48 id){
+    function addFundraising(address _beneficiary) external override returns(uint48 id){
         
         id = uint48(fundraises.length);
         
@@ -67,7 +67,7 @@ contract Fundraiser is IFundraiser{
         emit FundraiseCreated(id);
     }
 
-    function liquidateFundraising(uint48 _id) external  onlyCreator(_id) onlyOpened(_id) {
+    function liquidateFundraising(uint48 _id) external override onlyCreator(_id) onlyOpened(_id) {
         
         uint length = totalUniqueAssets(_id);
 
@@ -78,13 +78,14 @@ contract Fundraiser is IFundraiser{
 
         }
         fundraises[_id].state = FundraiseState.Closed;
-        emit FundraiseLiquidated(fundraises[_id].beneficiary);
+        emit FundraiseLiquidated(_id, fundraises[_id].beneficiary);
     }
 
-    function fund(uint48 _id, address _asset, uint amount) external{
-        IERC20(_asset).transferFrom(msg.sender, address(this), amount);
+    function fund(uint48 _id, address _asset, uint amount) external override{
+        require(IERC20(_asset).transferFrom(msg.sender, address(this), amount));
         fundraises[_id].balances[_asset] += amount;
         addNewAsset(_id, _asset);
+        emit FundraiseFunded(_id, msg.sender, _asset, amount);
     }
 
     modifier onlyCreator (uint48 _id) {
