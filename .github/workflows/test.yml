@@ -17,13 +17,11 @@ jobs:
           node-version: '18.x'
       - run: yarn --ignore-scripts
         shell: bash
-      - name: Setting up env
-        uses: actions/setup-node@v3
-        env:
-          ALCHEMY_MAINNET_URL: ${{secrets.ALCHEMY_MAINNET_URL}}
-          ALCHEMY_GOERLI_URL: ${{secrets.ALCHEMY_GOERLI_URL}}
-          GOERLI_PRIVATE_KEY: ${{secrets.GOERLI_PRIVATE_KEY}}
-          LOCAL_PRIVATE_KEY: ${{secrets.LOCAL_PRIVATE_KEY}}
-          GOERLI_API_KEY: ${{secrets.GOERLI_API_KEY}}
       - name: Run Tests
+        env:
+            ALCHEMY_MAINNET_URL: ${{secrets.ALCHEMY_MAINNET_URL}}
+            ALCHEMY_GOERLI_URL: ${{secrets.ALCHEMY_GOERLI_URL}}
+            GOERLI_PRIVATE_KEY: ${{secrets.GOERLI_PRIVATE_KEY}}
+            LOCAL_PRIVATE_KEY: ${{secrets.LOCAL_PRIVATE_KEY}}
+            GOERLI_API_KEY: ${{secrets.GOERLI_API_KEY}}
         run: yarn test
