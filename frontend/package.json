@@ -1,0 +1,37 @@
+{
+  "name": "raise-free-frontend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview --port 3000",
+    "lint": "eslint . --ext .js --fix",
+    "test": "jest"
+  },
+  "dependencies": {
+    "ethers": "^5.6.0",
+    "ipfs-http-client": "^56.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
+    "@heroicons/react": "^1.0.5",
+    "@tailwindcss/forms": "^0.4.0",
+    "@vitejs/plugin-react": "^1.1.3",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-watch": "^8.0.0",
+    "jest": "^27.4.5",
+    "postcss": "^8.4.5",
+    "prettier": "^2.5.1",
+    "tailwindcss": "^3.0.7",
+    "vite": "^2.7.6"
+  }
+}
