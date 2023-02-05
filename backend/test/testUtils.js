@@ -1,3 +1,5 @@
+const { ethers } = require("hardhat");
+
 // We define a fixture to reuse the same setup in every test.
 // We use loadFixture to run this setup once, snapshot that state,
 // and reset Hardhat Network to that snapshot in every test.
@@ -12,6 +14,18 @@ async function deployFundraiserFixture() {
     return { owner, otherAccount, contract };
 }
 
+async function getETHWhale() {
+    const ADDRESS = "0x28C6c06298d514Db089934071355E5743bf21d60"
+
+    return await ethers.getImpersonatedSigner(ADDRESS);
+}
+
+async function getDAIWhale() {
+    const ADDRESS = "0x28C6c06298d514Db089934071355E5743bf21d60"
+    
+    return await ethers.getImpersonatedSigner(ADDRESS);
+}
+
 // SOME TOKEN ADDRESSES
 const MAINNET_TOKENS = {
     USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -22,5 +36,7 @@ const MAINNET_TOKENS = {
 
 module.exports = {
     deployFundraiserFixture,
-    MAINNET_TOKENS
+    MAINNET_TOKENS,
+    getETHWhale,
+    getDAIWhale
 }

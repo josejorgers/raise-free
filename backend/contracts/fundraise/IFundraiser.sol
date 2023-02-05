@@ -8,7 +8,8 @@ interface IFundraiser {
     
     function addFundraising(address _beneficiary) external returns(uint48);
     function liquidateFundraising(uint48 _id) external;
-    function fund(uint48 _id, address _asset, uint amount) external;
+    function fund(uint48 _id) payable external;
+    function fundToken(uint48 _id, address _asset, uint amount) external;
     
     event FundraiseCreated(uint48);
     event FundraiseLiquidated(uint48, address);

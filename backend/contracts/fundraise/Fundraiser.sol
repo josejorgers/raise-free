@@ -6,13 +6,15 @@ import "./IFundraiser.sol";
 import "./IToken.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 
 enum FundraiseState {
     Opened,
     Closed
 }
 
-contract Fundraiser is IFundraiser{
+contract Fundraiser is Ownable, IFundraiser{
 
     struct Fundraise {
 
@@ -53,7 +55,7 @@ contract Fundraiser is IFundraiser{
     }
     
 
-    function addFundraising(address _beneficiary) external override returns(uint48 id){
+    function addFundraising(address _beneficiary) public override returns(uint48 id){
         
         id = uint48(fundraises.length);
         
@@ -67,25 +69,48 @@ contract Fundraiser is IFundraiser{
         emit FundraiseCreated(id);
     }
 
-    function liquidateFundraising(uint48 _id) external override onlyCreator(_id) onlyOpened(_id) {
+    function liquidateFundraising(uint48 _id) public override onlyCreator(_id) onlyOpened(_id) {
         
         uint length = totalUniqueAssets(_id);
 
         for(uint48 i = 0; i < length; i++){
 
             address payable tokenAddr = payable(getAssetAddress(_id, i));
-            require(IERC20(tokenAddr).transfer(fundraises[_id].beneficiary, getAssetBalance(_id, tokenAddr)));
+            if(tokenAddr != payable(address(this)))
+                // Not a native token
+                require(IERC20(tokenAddr).transfer(fundraises[_id].beneficiary, getAssetBalance(_id, tokenAddr)));
+            else
+                // Native token
+                payable(fundraises[_id].beneficiary).transfer(getAssetBalance(_id, address(this)));
 
         }
         fundraises[_id].state = FundraiseState.Closed;
         emit FundraiseLiquidated(_id, fundraises[_id].beneficiary);
     }
 
-    function fund(uint48 _id, address _asset, uint amount) external override{
+    function fund(uint48 _id) payable public override {
+        require(msg.value > 0, "Funding value must be greater than zero");
+
+        fundraises[_id].balances[address(this)] += msg.value;
+        addNewAsset(_id, address(this));
+        emit FundraiseFunded(_id, msg.sender, address(this), msg.value);
+    }
+
+    function fundToken(uint48 _id, address _asset, uint amount) public override{
         require(IERC20(_asset).transferFrom(msg.sender, address(this), amount));
         fundraises[_id].balances[_asset] += amount;
         addNewAsset(_id, _asset);
         emit FundraiseFunded(_id, msg.sender, _asset, amount);
+    }
+
+    function withdraw() public onlyOwner {
+        uint balance = address(this).balance;
+        require(balance > 0, "There are no funds to withdraw");
+
+        payable(msg.sender).transfer(balance);
+    }
+
+    receive() external payable {
     }
 
     modifier onlyCreator (uint48 _id) {
