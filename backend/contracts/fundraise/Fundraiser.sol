@@ -55,6 +55,26 @@ contract Fundraiser is Ownable, IFundraiser{
     }
     
 
+    // Info functions:
+
+    function getFundraisingCreator(uint48 _id) external view returns(address) {
+        return fundraises[_id].creator;
+    }
+
+    function getFundraisingAssets(uint48 _id) external view returns(address[] memory assets, uint[] memory amounts){
+        uint len = totalUniqueAssets(_id);
+        
+        assets = new address[](len);
+        amounts = new uint[](len);
+
+        for(uint48 i = 0; i < len; i++){
+            assets[i] = fundraises[_id].assetAddresses[i];
+            amounts[i] = fundraises[_id].balances[assets[i]];
+        }
+        
+    }
+
+
     function addFundraising(address _beneficiary) public override returns(uint48 id){
         
         id = uint48(fundraises.length);

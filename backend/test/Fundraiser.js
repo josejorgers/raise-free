@@ -23,13 +23,19 @@ describe("Fundraiser", function () {
       await expect(contract.addFundraising(otherAccount.address)).to.emit(
         contract, "FundraiseCreated").withArgs(0);
     })
+    
+    it("Should get Fundraise creator", async function() {
+      const { owner, otherAccount, contract } = await loadFixture(deployFundraiserFixture);
 
+      await contract.addFundraising(otherAccount.address)
+
+      await expect(await contract.getFundraisingCreator(0)).to.equal(owner.address)
+    })
 
     it("Should fund the fundraise with ETH", async function() {
       const { owner, otherAccount, contract } = await loadFixture(deployFundraiserFixture);
 
       const amount = ethers.utils.parseEther('1');
-      const funder = await getETHWhale();
 
       await contract.addFundraising(otherAccount.address);
 
@@ -57,6 +63,33 @@ describe("Fundraiser", function () {
       const daiBalanceAfter = await daiContract.balanceOf(contract.address);
 
       await expect(BigInt(daiBalanceAfter - daiBalanceBefore)).to.equal(amount);
+    })
+
+    it("Should retrieve all fundraise assets", async function() {
+      const { owner, otherAccount, contract } = await loadFixture(deployFundraiserFixture);
+
+      const ethAmount = ethers.utils.parseEther('1');
+
+      await contract.addFundraising(otherAccount.address);
+
+      await contract.fund(0, {value: ethAmount})
+
+      const daiAmount = 1000000000000000000n;
+      const daiFunder = await getDAIWhale();
+      const daiContract = await ethers.getContractAt('IERC20', MAINNET_TOKENS.DAI);
+
+      await daiContract.connect(daiFunder).approve(contract.address, 1000000000000000000000n);
+
+      await contract.addFundraising(otherAccount.address);
+      
+      await contract.connect(daiFunder).fundToken(0, MAINNET_TOKENS.DAI, daiAmount)
+      
+      const [assets, amounts] = await contract.getFundraisingAssets(0);
+      
+      await expect(assets).to.eql([contract.address, MAINNET_TOKENS.DAI]);
+      const toCheck = amounts.map(amount => ethers.BigNumber.from(amount._hex))
+      await expect(toCheck).to.eql([ethers.BigNumber.from(ethAmount), ethers.BigNumber.from(daiAmount)])
+
     })
 
     it("Should revert fundraise liquidation", async function() {
