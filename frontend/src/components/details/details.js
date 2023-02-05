@@ -1,13 +1,25 @@
 import React, { useEffect, useState } from 'react'
+import { METADATA_API_URL } from '../../constants'
 import FundModal from '../fundModal/fundModal'
 
 const FundraisingDetail = ({ id, onFund }) => {
 
-    const [title, setTitle] = useState("F1")
-    const [desc, setDesc] = useState('D1')
+    const [title, setTitle] = useState('')
+    const [desc, setDesc] = useState('')
 
     useEffect(() => {
-        // TODO: Retrieve title and description from id
+        fetch(`${METADATA_API_URL}find`, {
+            headers: {
+                "content-type": "application/json"
+            },
+            method: "POST",
+            body: JSON.stringify({id: id})
+        })
+        .then(res => res.json())
+        .then(res => {
+            setTitle(res.result[0].title)
+            setDesc(res.result[0].description)
+        })
     }, [])
 
     const [showModal, setShowModal] = useState(false)
