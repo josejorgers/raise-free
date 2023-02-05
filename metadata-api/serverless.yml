@@ -1,0 +1,35 @@
+service: my-serverless-mongodb
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  stage: staging
+  environment:
+      MONGODB_URL: ${ssm:/raise-free-staging-db}
+      MONGODB_DB_NAME: staging
+      MONGODB_COLLECTION_NAME: metadata
+
+plugins:
+  - serverless-offline
+
+functions:
+  find:
+    handler: handler.findDocuments
+    events:
+      - http:
+          path: /find
+          method: post
+  create:
+    handler: handler.createDocument
+    events:
+      - http:
+          path: /create
+          method: post
+    
+  update:
+    handler: handler.updateDocument
+    events:
+      - http:
+          path: /update
+          method: post
