@@ -7,11 +7,14 @@ const STATUS_CODE = {
   'FAIL': 2
 }
 
-const CreateFundraisingForm = () => {
+const CreateFundraisingForm = ({provider}) => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [creationStatus, setCreationStatus] = useState(STATUS_CODE['INIT'])
 
+  useEffect(() => {
+    console.log("Provider:", provider)
+  }, [provider])
   const handleSubmit = event => {
     event.preventDefault()
     console.log(name, description)
