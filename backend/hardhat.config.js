@@ -11,6 +11,15 @@ module.exports = {
         url: process.env.ALCHEMY_MAINNET_URL,
         // blockNumber: 15760547,
       }
+    },
+    ganache: {
+      url: "http://127.0.0.1:7545"
+    },
+    goerli: {
+      url: process.env.ALCHEMY_GOERLI_URL,
+      accounts: [
+        process.env.GOERLI_PRIVATE_KEY
+      ]
     }
   },
   etherscan: {
