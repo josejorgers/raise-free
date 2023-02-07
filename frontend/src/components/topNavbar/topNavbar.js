@@ -1,40 +1,30 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-// import { WalletLinkConnector } from "@web3-react/walletlink-connector";
-// import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
-import { InjectedConnector } from "@web3-react/injected-connector";
-import { useWeb3React } from '@web3-react/core'
-
-// const CoinbaseWallet = new WalletLinkConnector({
-//  url: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
-//  appName: "Web3-react Demo",
-//  supportedChainIds: [1, 3, 4, 5, 42],
-// });
-
-// const WalletConnect = new WalletConnectConnector({
-//  rpcUrl: `https://mainnet.infura.io/v3/${process.env.INFURA_KEY}`,
-//  bridge: "https://bridge.walletconnect.org",
-//  qrcode: true,
-// });
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { InjectedConnector } from 'wagmi/connectors/injected'
 
 const Injected = new InjectedConnector({
  supportedChainIds: [1, 3, 4, 5, 42]
 });
 
 
-const TopNavbar = ({ active, account }) => {
+const TopNavbar = ({ setAddress }) => {
   
-  const { activate, deactivate } = useWeb3React();
+  const { address, isConnected } = useAccount()
+  const { connect } = useConnect({
+    connector: new InjectedConnector()
+  })
+  const { disconnect } = useDisconnect()
 
   const connectButton = <button
                           className="absolute right-0 top-0 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
-                          onClick={() => activate(Injected)}
+                          onClick={connect}
                         >
                           Connect
                         </button>
   const disconnectButton = <button
                               className="absolute right-0 top-0 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
-                              onClick={ deactivate }
+                              onClick={ disconnect }
                             >
                               Disconnect
                             </button>
@@ -52,9 +42,9 @@ const TopNavbar = ({ active, account }) => {
           <div
             className="bg-gray-700 rounded p-2 w-48 text-white overflow-hidden"
           >
-            {account ? showAddr(account) : "0x000000000000000"}
+            {isConnected ? showAddr(address) : "0x000000000000000"}
           </div>
-          { active ? disconnectButton : connectButton }
+          { isConnected ? disconnectButton : connectButton }
         </div>
       </div>
     </nav>

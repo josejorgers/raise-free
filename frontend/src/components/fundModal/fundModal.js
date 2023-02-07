@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 
-const FundModal = ({ onSubmit, onClose }) => {
-  const [token, setToken] = useState('')
-  const [amount, setAmount] = useState('')
+const FundModal = ({ onSubmit, onSubmitWithToken, onClose, setFundAmount, fundAmount, token, setToken }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    onSubmit({ token, amount })
+    if(token.length > 0)
+      onSubmitWithToken()
+    else
+      onSubmit()
   }
 
   return (
@@ -37,8 +38,8 @@ const FundModal = ({ onSubmit, onClose }) => {
               className="border border-gray-400 p-2 w-full"
               id="amount"
               type="number"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              value={fundAmount}
+              onChange={(e) => setFundAmount(e.target.value)}
             />
           </div>
           <button className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">

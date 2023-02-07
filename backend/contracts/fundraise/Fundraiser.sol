@@ -18,7 +18,7 @@ contract Fundraiser is Ownable, IFundraiser{
 
     struct Fundraise {
 
-        uint48  id;
+        uint  id;
         address creator;
         address beneficiary;
         
@@ -30,26 +30,26 @@ contract Fundraiser is Ownable, IFundraiser{
 
     Fundraise[] fundraises;
     
-    function totalUniqueAssets(uint48 id) private view returns(uint) {
+    function totalUniqueAssets(uint id) private view returns(uint) {
         return fundraises[id].assetAddresses.length;
     }
 
-    function getAssetAddress(uint48 id, uint48 _i) private view returns(address){
+    function getAssetAddress(uint id, uint _i) private view returns(address){
         return fundraises[id].assetAddresses[_i];
     }
 
-    function getAssetBalance(uint48 id, address asset) private view returns(uint){
+    function getAssetBalance(uint id, address asset) private view returns(uint){
         return fundraises[id].balances[asset];
     }
-    function isAssetInFundraise(uint48 id, address asset) private view returns(bool){
+    function isAssetInFundraise(uint id, address asset) private view returns(bool){
 
-        for(uint48 i = 0; i < fundraises[id].assetAddresses.length; i++)
+        for(uint i = 0; i < fundraises[id].assetAddresses.length; i++)
             if(fundraises[id].assetAddresses[i] == asset)
                 return true;
         return false;
     }
 
-    function addNewAsset(uint48 id, address asset) private {
+    function addNewAsset(uint id, address asset) private {
         if(!isAssetInFundraise(id, asset))
             fundraises[id].assetAddresses.push(asset);
     }
@@ -57,17 +57,17 @@ contract Fundraiser is Ownable, IFundraiser{
 
     // Info functions:
 
-    function getFundraisingCreator(uint48 _id) external view returns(address) {
+    function getFundraisingCreator(uint _id) external view returns(address) {
         return fundraises[_id].creator;
     }
 
-    function getFundraisingAssets(uint48 _id) external view returns(address[] memory assets, uint[] memory amounts){
+    function getFundraisingAssets(uint _id) external view returns(address[] memory assets, uint[] memory amounts){
         uint len = totalUniqueAssets(_id);
         
         assets = new address[](len);
         amounts = new uint[](len);
 
-        for(uint48 i = 0; i < len; i++){
+        for(uint i = 0; i < len; i++){
             assets[i] = fundraises[_id].assetAddresses[i];
             amounts[i] = fundraises[_id].balances[assets[i]];
         }
@@ -75,9 +75,9 @@ contract Fundraiser is Ownable, IFundraiser{
     }
 
 
-    function addFundraising(address _beneficiary) public override returns(uint48 id){
+    function addFundraising(address _beneficiary) public override returns(uint id){
         
-        id = uint48(fundraises.length);
+        id = uint(fundraises.length);
         
         // Workaround to push a struct that has a nested mapping
         Fundraise storage fr = fundraises.push();
@@ -89,11 +89,11 @@ contract Fundraiser is Ownable, IFundraiser{
         emit FundraiseCreated(id);
     }
 
-    function liquidateFundraising(uint48 _id) public override onlyCreator(_id) onlyOpened(_id) {
+    function liquidateFundraising(uint _id) public override onlyCreator(_id) onlyOpened(_id) {
         
         uint length = totalUniqueAssets(_id);
 
-        for(uint48 i = 0; i < length; i++){
+        for(uint i = 0; i < length; i++){
 
             address payable tokenAddr = payable(getAssetAddress(_id, i));
             if(tokenAddr != payable(address(this)))
@@ -108,7 +108,7 @@ contract Fundraiser is Ownable, IFundraiser{
         emit FundraiseLiquidated(_id, fundraises[_id].beneficiary);
     }
 
-    function fund(uint48 _id) payable public override {
+    function fund(uint _id) payable public override {
         require(msg.value > 0, "Funding value must be greater than zero");
 
         fundraises[_id].balances[address(this)] += msg.value;
@@ -116,7 +116,7 @@ contract Fundraiser is Ownable, IFundraiser{
         emit FundraiseFunded(_id, msg.sender, address(this), msg.value);
     }
 
-    function fundToken(uint48 _id, address _asset, uint amount) public override{
+    function fundToken(uint _id, address _asset, uint amount) public override{
         require(IERC20(_asset).transferFrom(msg.sender, address(this), amount));
         fundraises[_id].balances[_asset] += amount;
         addNewAsset(_id, _asset);
@@ -133,12 +133,12 @@ contract Fundraiser is Ownable, IFundraiser{
     receive() external payable {
     }
 
-    modifier onlyCreator (uint48 _id) {
+    modifier onlyCreator (uint _id) {
         require(fundraises[_id].creator == msg.sender, "Fundraise can only be liquidated by its creator");
         _;
     }
 
-    modifier onlyOpened (uint48 _id) {
+    modifier onlyOpened (uint _id) {
         require(fundraises[_id].state == FundraiseState.Opened, "Fundraise already liquidated");
         _;
     }

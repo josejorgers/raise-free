@@ -2,6 +2,9 @@
   "name": "metadata-api",
   "version": "1.0.0",
   "license": "MIT",
+  "scripts": {
+    "start": "serverless offline"
+  },
   "devDependencies": {
     "serverless": "^3.27.0",
     "serverless-offline": "^12.0.4"

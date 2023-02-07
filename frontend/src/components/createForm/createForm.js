@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { METADATA_API_URL } from '../../constants'
+import { useContractWrite, usePrepareContractWrite } from 'wagmi'
+import { CONTRACT_ADDRESS, METADATA_API_URL } from '../../constants'
+import { useDebounce } from '../../utils'
+import abi from '../../contracts/Fundraiser.json'
 
 const STATUS_CODE = {
   'INIT': 0,
@@ -7,48 +10,37 @@ const STATUS_CODE = {
   'FAIL': 2
 }
 
-const CreateFundraisingForm = ({provider}) => {
+const CreateFundraisingForm = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [creationStatus, setCreationStatus] = useState(STATUS_CODE['INIT'])
+  const [beneficiary, setBeneficiary] = useState('')
+  const debouncedBeneficiary = useDebounce(beneficiary, 500)
 
-  useEffect(() => {
-    console.log("Provider:", provider)
-  }, [provider])
+  const { config } = usePrepareContractWrite({
+    abi: abi.abi,
+    address: CONTRACT_ADDRESS,
+    args: [debouncedBeneficiary],
+    functionName: 'addFundraising'
+  })
+
+  const { write } = useContractWrite(config)
   const handleSubmit = event => {
     event.preventDefault()
-    console.log(name, description)
-    // TODO: Create the fundraising in the blockchain and get the id
+    
+    console.log("Creating...")
+    console.log(beneficiary)
+    // contract.addFundraising(ethers.getAddress(beneficiary));
 
-    const id = 0
-
-    const metadataConfig = {
-      headers: {
-        "content-type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({
-        id,
-        title: name,
-        description
-      })
-    }
-
-    fetch(`${METADATA_API_URL}create`, metadataConfig)
-    .then(res => res.json())
-    .then(res => res.message === 'Success' ? setCreationStatus(STATUS_CODE['SUCCESS']) : setCreationStatus(STATUS_CODE['FAIL']))
+    write?.()
   }
 
-  useEffect(() => {
-    // TODO: do something with creation status
-  }, [creationStatus])
 
   return (
     <form className="bg-gray-100 p-4 rounded w-1/2 items-center justify-center">
       <h1 className="text-2xl font-bold mb-4">Create Fundraising</h1>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2" htmlFor="name">
-          Name
+          Title
         </label>
         <input
           className="border border-gray-400 p-2 w-full"
@@ -67,6 +59,18 @@ const CreateFundraisingForm = ({provider}) => {
           id="description"
           value={description}
           onChange={event => setDescription(event.target.value)}
+        />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-2" htmlFor="name">
+          Beneficiary
+        </label>
+        <input
+          className="border border-gray-400 p-2 w-full"
+          type="text"
+          id="name"
+          value={beneficiary}
+          onChange={event => setBeneficiary(event.target.value)}
         />
       </div>
       <button onClick={handleSubmit} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">

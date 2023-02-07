@@ -6,12 +6,12 @@ pragma solidity ^0.8.17;
 /// @dev Comprises the behavior of a Fundraiser that is able to create and liquidate fundraisings
 interface IFundraiser {
     
-    function addFundraising(address _beneficiary) external returns(uint48);
-    function liquidateFundraising(uint48 _id) external;
-    function fund(uint48 _id) payable external;
-    function fundToken(uint48 _id, address _asset, uint amount) external;
+    function addFundraising(address _beneficiary) external returns(uint);
+    function liquidateFundraising(uint _id) external;
+    function fund(uint _id) payable external;
+    function fundToken(uint _id, address _asset, uint amount) external;
     
-    event FundraiseCreated(uint48);
-    event FundraiseLiquidated(uint48, address);
-    event FundraiseFunded(uint48, address funder, address token, uint amount);
+    event FundraiseCreated(uint);
+    event FundraiseLiquidated(uint, address);
+    event FundraiseFunded(uint, address funder, address token, uint amount);
 }
