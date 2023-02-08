@@ -1,11 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { InjectedConnector } from 'wagmi/connectors/injected'
-
-const Injected = new InjectedConnector({
- supportedChainIds: [1, 3, 4, 5, 42]
-});
 
 
 const TopNavbar = ({ setAddress }) => {
@@ -32,6 +28,11 @@ const TopNavbar = ({ setAddress }) => {
   const showAddr = (addr) => {
     return `${addr.slice(0, 8)}...${addr.slice(-6)}`
   }
+
+  useEffect(() => {
+    setAddress(address)
+  }, [address])
+  
   return (
     <nav className="flex items-center justify-between bg-gray-800 p-4">
       <Link to="/"><img src='/logo.png' alt="" /></Link>

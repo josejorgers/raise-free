@@ -3,12 +3,11 @@ import { erc20ABI, goerli, useContractRead, useContractWrite, usePrepareContract
 import { CONTRACT_ADDRESS, METADATA_API_URL } from '../../constants'
 import FundModal from '../fundModal/fundModal'
 import abi from '../../contracts/Fundraiser.json';
-import { provider } from '../../wagmiConfig';
 import { ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 import { useDebounce } from '../../utils';
 
-const FundraisingDetail = () => {
+const FundraisingDetail = ({ address }) => {
 
     const { id } = useParams();
     const [title, setTitle] = useState('')
@@ -81,14 +80,24 @@ const FundraisingDetail = () => {
         isSuccess && fundTokenWrite?.()
     }, [isSuccess, fundTokenWrite])
 
+    const metadataConfig = {
+        headers: {
+          "content-type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({ id: parseInt(id) })
+    }
+
     useEffect(() => {
-        // fetch(`${METADATA_API_URL}find`, {
-        //     headers: {
-        //         "content-type": "application/json"
-        //     },
-        //     method: "POST",
-        //     body: JSON.stringify({id: id})
-        // })
+        (async () => {
+            let res = await fetch(`${METADATA_API_URL}find`, metadataConfig)
+            res = await res.json()
+            console.log("FIND:", res);
+            setTitle(res.result[0].title)
+            setDesc(res.result[0].description)
+        })();
+
+        // fetch(`${METADATA_API_URL}find`, metadataConfig)
         // .then(res => res.json())
         // .then(res => {
         //     setTitle(res.result[0].title)
@@ -137,9 +146,12 @@ const FundraisingDetail = () => {
             <button disabled={!fundWrite} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-2" onClick={handleFundClick}>
                 Fund
             </button>
-            <button disabled={!liquidateWrite} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-2" onClick={() => liquidateWrite?.()}>
-                Liquidate
-            </button>
+            {
+                address === data &&
+                <button disabled={!liquidateWrite} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-2" onClick={() => liquidateWrite?.()}>
+                    Liquidate
+                </button>
+            }
             {showModal && (
                 <FundModal
                     setFundAmount={setFundAmount}

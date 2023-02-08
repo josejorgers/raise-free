@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 const FundModal = ({ onSubmit, onSubmitWithToken, onClose, setFundAmount, fundAmount, token, setToken }) => {
 

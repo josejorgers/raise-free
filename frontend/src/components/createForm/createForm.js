@@ -4,15 +4,10 @@ import { CONTRACT_ADDRESS, METADATA_API_URL } from '../../constants'
 import { useDebounce } from '../../utils'
 import abi from '../../contracts/Fundraiser.json'
 
-const STATUS_CODE = {
-  'INIT': 0,
-  'SUCCESS': 1,
-  'FAIL': 2
-}
-
 const CreateFundraisingForm = () => {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [started, setStarted] = useState(false);
   const [beneficiary, setBeneficiary] = useState('')
   const debouncedBeneficiary = useDebounce(beneficiary, 500)
 
@@ -23,7 +18,39 @@ const CreateFundraisingForm = () => {
     functionName: 'addFundraising'
   })
 
-  const { write } = useContractWrite(config)
+  const { write, data: id, isSuccess, isLoading } = useContractWrite(config)
+
+  useEffect(() => {
+
+    if(!started) return;
+
+    if(isLoading) return;
+
+    if(!isSuccess) return;
+
+    alert('Fundraising created successfully!')
+
+    const metadataConfig = {
+      headers: {
+        "content-type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify({
+        id,
+        title: name,
+        description
+      })
+    }
+
+    fetch(`${METADATA_API_URL}create`, metadataConfig)
+    .then(res => res.json())
+    .then(res => res.message === 'Success')
+    .then(success => success ? console.log('Done!') : alert('There was an error adding the metadata!'))
+    .catch(err => alert('There was an error adding the metadata!' + err.message))
+    setStarted(false)
+
+  }, [id, isSuccess, isLoading, started])
+
   const handleSubmit = event => {
     event.preventDefault()
     
@@ -31,7 +58,9 @@ const CreateFundraisingForm = () => {
     console.log(beneficiary)
     // contract.addFundraising(ethers.getAddress(beneficiary));
 
+
     write?.()
+    setStarted(true);
   }
 
 

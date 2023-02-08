@@ -31,7 +31,7 @@ function App() {
         <main className='flex flex-col items-center justify-center w-full mt-20'>
           <Routes>
             <Route path="/create" element={<CreateFundraisingForm contract={contract} provider={provider} />} />
-            <Route path="/details/:id" element={<FundraisingDetail contract={contract} provider={provider} />} />
+            <Route path="/details/:id" element={<FundraisingDetail address={address} />} />
             <Route path="/" element={ <Listing  /> } />
           </Routes>
         </main>
