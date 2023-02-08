@@ -4,7 +4,6 @@ import { CONTRACT_ADDRESS, METADATA_API_URL } from '../../constants'
 import { useDebounce } from '../../utils'
 import abi from '../../contracts/Fundraiser.json'
 import WithLoading from '../withLoading'
-import { ethers } from 'ethers'
 
 const CreateFundraisingForm = () => {
   const [name, setName] = useState('')
@@ -64,7 +63,7 @@ const CreateFundraisingForm = () => {
     .catch(err => alert('There was an error adding the metadata!' + err.message))
     setStarted(false)
     setId(null)
-  }, [id, isSuccess, isLoading, started])
+  }, [id, isSuccess, isLoading, started, name, description])
 
   const handleSubmit = event => {
     event.preventDefault()

@@ -18,7 +18,7 @@ const FundraisingDetail = ({ address }) => {
     const [token, setToken] = useState('')
     const [loading, setLoading] = useState(true)
 
-    const { data, isError, isLoading, error } = useContractRead({
+    const { data, isLoading } = useContractRead({
         address: CONTRACT_ADDRESS,
         abi: abi.abi,
         functionName: 'getFundraisingCreator',
@@ -26,7 +26,7 @@ const FundraisingDetail = ({ address }) => {
         chainId: goerli.id,
     })
 
-    const { data: assetData, isError: assetError, isLoading: assetLoading, error: assetErrorData } = useContractRead({
+    const { data: assetData, isLoading: assetLoading } = useContractRead({
         address: CONTRACT_ADDRESS,
         abi: abi.abi,
         functionName: 'getFundraisingAssets',
@@ -34,7 +34,7 @@ const FundraisingDetail = ({ address }) => {
         chainId: goerli.id,
     })
 
-    const { data: status, isError: statusError, isLoading: statusLoading, error:statusErrorData } = useContractRead({
+    const { data: status, isLoading: statusLoading } = useContractRead({
         address: CONTRACT_ADDRESS,
         abi: abi.abi,
         functionName: 'getFundraisingStatus',
@@ -42,7 +42,7 @@ const FundraisingDetail = ({ address }) => {
         chainId: goerli.id,
     })
 
-    const { data: beneficiary, isError: benError, isLoading: benLoading, error: benErrorData } = useContractRead({
+    const { data: beneficiary, isLoading: benLoading } = useContractRead({
         address: CONTRACT_ADDRESS,
         abi: abi.abi,
         functionName: 'getFundraisingBeneficiary',
@@ -97,6 +97,7 @@ const FundraisingDetail = ({ address }) => {
         isSuccess && fundTokenWrite?.()
     }, [isSuccess, fundTokenWrite])
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const metadataConfig = {
         headers: {
           "content-type": "application/json",
@@ -116,13 +117,7 @@ const FundraisingDetail = ({ address }) => {
         
         setLoading(isLoading || benLoading || assetLoading || statusLoading)
          
-    }, [
-        isLoading, 
-        benLoading, 
-        assetLoading, 
-        statusLoading, 
-        id 
-    ])
+    }, [isLoading, benLoading, assetLoading, statusLoading, id, metadataConfig])
 
     const [showModal, setShowModal] = useState(false)
 

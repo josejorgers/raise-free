@@ -31,8 +31,8 @@ const TopNavbar = ({ setAddress }) => {
 
   useEffect(() => {
     setAddress(address)
-  }, [address])
-  
+  }, [address, setAddress])
+
   return (
     <nav className="flex items-center justify-between bg-gray-800 p-4">
       <Link to="/"><img src='/logo.png' alt="" /></Link>
