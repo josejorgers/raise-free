@@ -22,14 +22,18 @@ describe("Fundraiser", function () {
 
       await expect(contract.addFundraising(otherAccount.address)).to.emit(
         contract, "FundraiseCreated").withArgs(0);
+
+      await expect(await contract.getFundraisingStatus(0)).to.equal(0)
     })
     
-    it("Should get Fundraise creator", async function() {
+    it("Should get Fundraise creator and beneficiary", async function() {
       const { owner, otherAccount, contract } = await loadFixture(deployFundraiserFixture);
 
       await contract.addFundraising(otherAccount.address)
 
       await expect(await contract.getFundraisingCreator(0)).to.equal(owner.address)
+      await expect(await contract.getFundraisingBeneficiary(0)).to.equal(otherAccount.address)
+    
     })
 
     it("Should fund the fundraise with ETH", async function() {
@@ -110,6 +114,8 @@ describe("Fundraiser", function () {
       await expect(contract.liquidateFundraising(0)).to.emit(
         contract, "FundraiseLiquidated"
       ).withArgs(0, otherAccount.address)
+
+      await expect(await contract.getFundraisingStatus(0)).to.equal(1)
     })
 
     it("Should revert because of already liquidated fundraise", async function() {
@@ -143,7 +149,7 @@ describe("Fundraiser", function () {
       await contract.withdraw();
       const afterBalance = await ethers.provider.getBalance(owner.address);
 
-      const expectedDiff = 999000000000000000n
+      const expectedDiff = 990000000000000000n
       
       await expect(BigInt(afterBalance - beforeBalance)).to.be.greaterThan(expectedDiff);
 

@@ -61,6 +61,14 @@ contract Fundraiser is Ownable, IFundraiser{
         return fundraises[_id].creator;
     }
 
+    function getFundraisingBeneficiary(uint _id) external view returns(address) {
+        return fundraises[_id].beneficiary;
+    }
+
+    function getFundraisingStatus(uint _id) external view returns(FundraiseState) {
+        return fundraises[_id].state;
+    }
+
     function getFundraisingAssets(uint _id) external view returns(address[] memory assets, uint[] memory amounts){
         uint len = totalUniqueAssets(_id);
         
@@ -73,6 +81,7 @@ contract Fundraiser is Ownable, IFundraiser{
         }
         
     }
+    //
 
 
     function addFundraising(address _beneficiary) public override returns(uint id){
@@ -127,6 +136,10 @@ contract Fundraiser is Ownable, IFundraiser{
         uint balance = address(this).balance;
         require(balance > 0, "There are no funds to withdraw");
 
+        for(uint i = 0; i < fundraises.length; i++)
+            balance -= fundraises[i].balances[address(this)];
+        
+        require(balance > 0, "There are no funds to withdraw");  
         payable(msg.sender).transfer(balance);
     }
 
