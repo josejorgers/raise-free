@@ -6,6 +6,7 @@ import abi from '../../contracts/Fundraiser.json';
 import { ethers } from 'ethers';
 import { useParams } from 'react-router-dom';
 import { useDebounce } from '../../utils';
+import WithLoading from '../withLoading';
 
 const FundraisingDetail = ({ address }) => {
 
@@ -15,7 +16,7 @@ const FundraisingDetail = ({ address }) => {
     const [fundAmount, setFundAmount] = useState('0.00001')
     const debouncedFundAmount = useDebounce(fundAmount, 500)
     const [token, setToken] = useState('')
-
+    const [loading, setLoading] = useState(true)
 
     const { data, isError, isLoading, error } = useContractRead({
         address: CONTRACT_ADDRESS,
@@ -29,6 +30,22 @@ const FundraisingDetail = ({ address }) => {
         address: CONTRACT_ADDRESS,
         abi: abi.abi,
         functionName: 'getFundraisingAssets',
+        args: [id],
+        chainId: goerli.id,
+    })
+
+    const { data: status, isError: statusError, isLoading: statusLoading, error:statusErrorData } = useContractRead({
+        address: CONTRACT_ADDRESS,
+        abi: abi.abi,
+        functionName: 'getFundraisingStatus',
+        args: [id],
+        chainId: goerli.id,
+    })
+
+    const { data: beneficiary, isError: benError, isLoading: benLoading, error: benErrorData } = useContractRead({
+        address: CONTRACT_ADDRESS,
+        abi: abi.abi,
+        functionName: 'getFundraisingBeneficiary',
         args: [id],
         chainId: goerli.id,
     })
@@ -96,19 +113,16 @@ const FundraisingDetail = ({ address }) => {
             setTitle(res.result[0].title)
             setDesc(res.result[0].description)
         })();
-
-        // fetch(`${METADATA_API_URL}find`, metadataConfig)
-        // .then(res => res.json())
-        // .then(res => {
-        //     setTitle(res.result[0].title)
-        //     setDesc(res.result[0].description)
-        // })
         
-        (assetLoading || isLoading) && console.log("Loading")
-        (assetError || isError) && console.log(error, '....', assetErrorData)
-        assetData && console.log("ASSET:", assetData)
+        setLoading(isLoading || benLoading || assetLoading || statusLoading)
          
-    }, [isLoading, isError, error, id, assetLoading, assetError, assetErrorData, assetData])
+    }, [
+        isLoading, 
+        benLoading, 
+        assetLoading, 
+        statusLoading, 
+        id 
+    ])
 
     const [showModal, setShowModal] = useState(false)
 
@@ -122,54 +136,71 @@ const FundraisingDetail = ({ address }) => {
 
 
     return (
-        <div className="mt-8 bg-gray-100 rounded p-4 flex flex-col items-center w-1/2">
-            <h1 className="text-2xl font-bold">{title}</h1>
-            <p className="my-4">{desc}</p>
-            {
-                data &&
-                <div className='mt-5 mb-5'>
-                    <b>Creator:</b> {data}
-                </div>
-            }
-            {
-                assetData &&
-                <ul className='mt-5 mb-5'>
-                    {
-                        assetData[0].map((d, i) => {
-                            return <li key={i}>
-                                <b>{d === CONTRACT_ADDRESS ? 'Native' : d.substring(0, 8)}:</b> {ethers.utils.formatEther(assetData[1][i])}
-                            </li>
-                        })
-                    }
-                </ul>
-            }
-            <button disabled={!fundWrite} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-2" onClick={handleFundClick}>
-                Fund
-            </button>
-            {
-                address === data &&
-                <button disabled={!liquidateWrite} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-2" onClick={() => liquidateWrite?.()}>
-                    Liquidate
-                </button>
-            }
-            {showModal && (
-                <FundModal
-                    setFundAmount={setFundAmount}
-                    fundAmount={fundAmount}
-                    onSubmitWithToken={() => {
-                        approveWrite?.()
-                        handleModalClose()
-                    }}
-                    onSubmit={() => {
-                        fundWrite?.(id)
-                        handleModalClose()
-                    }}
-                    onClose={handleModalClose}
-                    token={token}
-                    setToken={setToken}
-                />
-            )}
-        </div>
+        <WithLoading loading={loading}>
+            <div className="mt-8 bg-gray-100 rounded p-4 flex flex-col items-center w-1/2">
+                <h1 className="text-2xl font-bold">{title}</h1>
+                <p className="my-4">{desc}</p>
+                {
+                    data &&
+                    <div className='mt-5 mb-5'>
+                        <b>Creator:</b> {data}
+                    </div>
+                }
+                {
+                    beneficiary &&
+                    <div className='mt-5 mb-5'>
+                        <b>Beneficiary:</b> {beneficiary}
+                    </div>
+                }
+                {
+                    status !== undefined &&
+                    <div className='mt-5 mb-5'>
+                        <b>Status:</b> {status ? 'CLOSED' : 'OPEN'}
+                    </div>
+                }
+                {
+                    assetData &&
+                    <ul className='mt-5 mb-5'>
+                        {
+                            assetData[0].map((d, i) => {
+                                return <li key={i}>
+                                    <b>{d === CONTRACT_ADDRESS ? 'Native' : d.substring(0, 8)}:</b> {ethers.utils.formatEther(assetData[1][i])}
+                                </li>
+                            })
+                        }
+                    </ul>
+                }
+                {
+                    status === 0 &&
+                    <button disabled={!fundWrite} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-2" onClick={handleFundClick}>
+                        Fund
+                    </button>
+                }
+                {
+                    status === 0 && address === data &&
+                    <button disabled={!liquidateWrite} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 mt-2" onClick={() => liquidateWrite?.()}>
+                        Liquidate
+                    </button>
+                }
+                {showModal && (
+                    <FundModal
+                        setFundAmount={setFundAmount}
+                        fundAmount={fundAmount}
+                        onSubmitWithToken={() => {
+                            approveWrite?.()
+                            handleModalClose()
+                        }}
+                        onSubmit={() => {
+                            fundWrite?.(id)
+                            handleModalClose()
+                        }}
+                        onClose={handleModalClose}
+                        token={token}
+                        setToken={setToken}
+                    />
+                )}
+            </div>
+        </WithLoading>
 )}
 
 export default FundraisingDetail
