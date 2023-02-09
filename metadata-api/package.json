@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "serverless offline"
+    "start": "serverless offline",
+    "deploy": "serverless deploy"
   },
   "devDependencies": {
     "serverless": "^3.27.0",
