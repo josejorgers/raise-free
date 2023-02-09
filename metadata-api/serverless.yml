@@ -19,17 +19,41 @@ functions:
     events:
       - http:
           path: /find
-          method: post
+          method: "post"
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
   create:
     handler: handler.createDocument
     events:
       - http:
           path: /create
-          method: post
+          method: "post"
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
     
   update:
     handler: handler.updateDocument
     events:
       - http:
           path: /update
-          method: post
+          method: "post"
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
