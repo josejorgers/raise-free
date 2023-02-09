@@ -7,6 +7,7 @@ import FundraisingDetail from './components/details/details';
 import { useState } from 'react';
 import { WagmiConfig } from 'wagmi';
 import { client } from './wagmiConfig';
+import Footer from './components/footer/footer';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           </Routes>
         </main>
       </div>
+      <Footer />
     </WagmiConfig>
     
   )
