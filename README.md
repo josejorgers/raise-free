@@ -34,12 +34,20 @@ You can find all the Smart Contracts in the `contracts` directory. Currently, we
 - **IFundraiser.sol**: An interface that contain the expected behavior of any `Fundraiser`.
 - **Fundraiser.sol**: Controls the creation, liquidation, and funding of fundraises. It also provides read only functions to get info from fundraisings. It implements the interface **IFundraiser**.
 
-
 ## Testing
 
 In the `backend` project run `yarn test`
 
 We recommend to read the test to learn how to interact with the Fundraiser contract.
+
+## Next steps
+
+This is part of the backlog for this project:
+
+- Improve UI/UX
+- Add more info functions to the smart contract (get general information from all the fundraisings and not just of one of them, get funders, etc)
+- Look for a way to store fundraising metadata via NFTs
+- Add the possibility to create an NFT as a proof of funding. This would be the way to monetize the application.
 
 ## Contributing
 
