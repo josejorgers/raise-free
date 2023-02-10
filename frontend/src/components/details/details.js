@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { erc20ABI, goerli, useContractRead, useContractWrite, usePrepareContractWrite } from 'wagmi'
+import { erc20ABI, goerli, useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi'
 import { CONTRACT_ADDRESS, METADATA_API_URL } from '../../constants'
 import FundModal from '../fundModal/fundModal'
 import abi from '../../contracts/Fundraiser.json';
@@ -60,8 +60,11 @@ const FundraisingDetail = ({ address }) => {
         ]
     })
 
-    const { write: approveWrite, isSuccess } = useContractWrite(approveConfig)
+    const { write: approveWrite, data: approveData } = useContractWrite(approveConfig)
 
+    const { isSuccess, isLoading: approveLoading } = useWaitForTransaction({
+        hash: approveData?.hash
+    })
 
     const { config: fundConfig } = usePrepareContractWrite({
         address: CONTRACT_ADDRESS,
@@ -93,9 +96,12 @@ const FundraisingDetail = ({ address }) => {
     const { write: liquidateWrite } = useContractWrite(liquidateConfig)
     const { write: fundTokenWrite } = useContractWrite(fundTokenConfig)
 
+
     useEffect(() => {
+        console.log("APPROVED?", isSuccess)
         isSuccess && fundTokenWrite?.()
-    }, [isSuccess, fundTokenWrite])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSuccess])
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const metadataConfig = {
@@ -115,9 +121,9 @@ const FundraisingDetail = ({ address }) => {
             setDesc(res.result[0].description)
         })();
         
-        setLoading(isLoading || benLoading || assetLoading || statusLoading)
+        setLoading(isLoading || benLoading || assetLoading || statusLoading || approveLoading)
          
-    }, [isLoading, benLoading, assetLoading, statusLoading, id, metadataConfig])
+    }, [isLoading, benLoading, assetLoading, statusLoading, id, metadataConfig, approveLoading])
 
     const [showModal, setShowModal] = useState(false)
 
